@@ -2,36 +2,59 @@
 import streamlit as st
 import pandas as pd
 import duckdb
+import io
 
-# st.write("Hello world")
-data = {"a" : [1, 2, 3], "b" : [4, 5, 6]}
-df = pd.DataFrame(data)
+# PARTIE DATA
+# ajout de vrai data pour les questions
+csv = '''
+beverage,price
+orange juice,2.5
+Expresso,2
+Tea,3
+'''
+beverages  = pd.read_csv(io.StringIO(csv))
 
-st.write("""
-# SRS SQL 
-Spaced Repetion System SQL practice
-""")
+csv2 = '''
+food_item,food_price
+cookie, 2.5
+chocolatine,2
+muffin,3
+'''
+food_items = pd.read_csv(io.StringIO(csv2))
 
-tab1, tab2, tab3 = st.tabs (["Theme Selection", "Questions", "fish"])
+answer = """
+SELECT * FROM beverages
+CROSS JOIN food_items
+"""
 
-with tab1:
-    option = st.selectbox(
-        "What would you like to review?",
-        ["Joins", "GroupBy", "Window Functions"],
-        index=None, # Default choice is None
-        placeholder="Select what you want to review"
-    )
-    st.write("You selected:", option)
+solution = duckdb.sql(answer).df()
+
+
+# ajout d'un header pour poser la question
+st.header("enter your code:")
+query = st.text_area(label="your SQL code here", key = "user_input")
+# key = user_input sert à nommer la clé du widget (pour le retrouver après)
+
+# test si la query n'est pas vide
+if query:
+    result = duckdb.sql(query).df()
+    st.dataframe(result)
+
+# il reste à faire : tester si la réponse = la solution
+
+# tabs présentant le contexte de l'exercice et la solution
+tab2, tab3 = st.tabs (["Tables", "Solution"])
 
 with tab2:
-    sql_query = st.text_area(label = "type your code here")
-    if sql_query != "":
-        result = duckdb.sql(sql_query).df()
-    else :
-        result = pd.DataFrame({})
-    st.write(f"Vous avez entré la query suivante :{sql_query}")
+    st.write("table: beverages")
+    st.dataframe(beverages)
+    st.write("table: food_items")
+    st.dataframe(food_items)
+    st.write("expected:")
+    st.dataframe(solution)
 
-    # 2 options pour afficher un dataframe (kifkif)
-    # st.dataframe(df)
-    st.dataframe(result)
+with tab3:
+    st.write(answer)
+
+
 
