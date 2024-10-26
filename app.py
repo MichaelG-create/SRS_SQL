@@ -1,13 +1,14 @@
 # pylint: disable=missing-module-docstring
 # https://srssql.streamlit.app/
-
-
 import duckdb
 import streamlit as st
 
+# connexion à la db des exercices
+con = duckdb.connect(database="data/exercises_sql_tables.duckdb", read_only=False)
 
-
+# ------------------------------------------------------------------------
 # PARTIE AFFICHAGE
+# ------------------------------------------------------------------------
 # titre de la page
 st.write(
     """
@@ -17,14 +18,31 @@ Spaced Repetition System SQL practice
 )
 
 # sidebar pour choisir le thème à réviser
-with st.sidebar:
-    option = st.selectbox(
+with ((((st.sidebar)))):
+    # à mettre ici : récupération de la liste des themes à partir d'un SELECT DISTINCT dans la table memory_state
+    theme_selected = st.selectbox(
         "What would you like to review?",
-        ["cross_joins", "GroupBy", "Window Functions"],
+        ["cross_joins", "GroupBy", "simple_window"],
         index=None,  # Default choice is None
         placeholder="Select what you want to review",
     )
-    st.write("You selected:", option)
+    st.write("You selected:", theme_selected)
+
+    # récupération de la liste des exercices disponibles dans le thème choisi
+    if theme_selected:
+        exercise_list= con.execute(
+                f"SELECT DISTINCT exercise_name FROM memory_state WHERE theme = '{theme_selected}'"
+            ).df()
+        # st.write(exercise_list)
+
+        # ajoute un autre sélecteur pour choisir l'exercice dans la liste
+        exercise_selected = st.selectbox(
+            "Which exercise would you like to review?",
+            exercise_list,
+            index=None,  # Default choice is None
+            placeholder="Select what you want to review",
+        )
+        st.write("You selected:", exercise_selected)
 
 # ajout d'un header pour poser la question
 st.header("enter your code:")
