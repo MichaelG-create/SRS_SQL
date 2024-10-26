@@ -1,0 +1,40 @@
+name: check_code_quality
+on: pull_request
+jobs:
+  job_black:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+      - run: |
+          python -m pip install --upgrade pip
+          pip install black
+      - run: |
+          black --check --verbose .
+  job_pylint:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+      - run: |
+          python -m pip install --upgrade pip
+          pip install pylint
+          pip install -r ./requirements.txt
+      - run: |
+          pylint .
+  job_isort:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+      - run: |
+          python -m pip install --upgrade pip
+          pip install isort
+      - run: |
+          isort --check --verbose .
