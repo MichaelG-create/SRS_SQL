@@ -5,13 +5,13 @@ import ast
 import duckdb
 import streamlit as st
 
-# connexion à la db des exercices
+# connecting db
 con = duckdb.connect(database="data/exercises_sql_tables.duckdb", read_only=False)
 
 # ------------------------------------------------------------------------
-# PARTIE AFFICHAGE
+# DISPLAY PART
 # ------------------------------------------------------------------------
-# titre de la page
+# Page title
 st.write(
     """
 # SRS SQL 
@@ -20,7 +20,7 @@ Spaced Repetition System SQL practice
 )
 
 # -----------------------------------------------------------
-# sidebar pour choisir le thème à réviser
+# Sidebar to choose the theme to revise
 # -----------------------------------------------------------
 with st.sidebar:
     theme_selected = st.selectbox(
@@ -29,81 +29,106 @@ with st.sidebar:
         index=None,  # Default choice is None
         placeholder="Select what you want to review",
     )
-    st.write("You selected:", theme_selected)
+    # theme selected
+    try:
+        st.write("You selected:", theme_selected)
 
-    # récupération des exercices disponibles dans le thème choisi
-    if theme_selected:
+        # get available exercises in this theme
         exercise = con.execute(
             f"SELECT DISTINCT * FROM memory_state WHERE theme = '{theme_selected}'"
         ).df()
         st.write(exercise)
 
-        # chargement de la table solution du 1er exercice
-        # solution_table_name = exercise.loc[0, "solution_table"]
-        # st.write(f"solution table name: {solution_table_name}")
-        # on va chercher la table en SQL avec son nom : easy
-        # solution_df = con.execute(f'SELECT * FROM "{solution_table_name}"').df()
+        # load answer of the 1st exercise (for instance)
+        exercise_name = exercise.loc[0, "exercise_name"]
+
+        # get answer_query stored in the exercise solution file
+        with open(
+            f"answers/{exercise_name}.sql", "r", encoding="utf-8"
+        ) as f:  # r for read only
+            answer_query = f.read()
+
+        # load solution df using answer_query
+        solution_df = con.execute(answer_query).df()
+
+    except KeyError as e:
+        st.write("No theme selected for now.")
+        # st.write(f"{e}")
 
 # -----------------------------------------------------------
-# Zone d'input avec affichage du résultat de l'input
+# Input zone
 # -----------------------------------------------------------
-# ajout d'un header pour poser la question
+# Question header
 st.header("enter your code:")
 input_query = st.text_area(label="your SQL code here", key="user_input")
-# key = user_input sert à nommer la clé du widget (pour le retrouver après)
+# key names the widget (to get it back later)
 
 # -----------------------------------------------------------
-# zone de réaction à l'input
+# Input reaction zone
 # -----------------------------------------------------------
-# test si la query n'est pas vide
-if input_query:
-    # input_df = duckdb.sql(input_query).df()
+# input_query sent
+try:
+    # Remark : user can query any table of db without choosing a theme !
     input_df = con.execute(input_query).df()
     st.dataframe(input_df)
 
-    # on ne réagit que si un thème a été choisi
-    # if theme_selected:
-    # nb_lines_difference = solution_df.shape[0] - input_df.shape[0]
-    # if nb_lines_difference != 0:
-    #     st.write(f"there are {nb_lines_difference} lines missing")
-    #
-    # # il reste à faire : tester si la réponse = la solution
-    # # 1ere idée : comparaison de tailles (colonnes puis lignes)
-    # if len(input_df.columns) != len(solution_df.columns):
-    #     st.write("some columns are missing")
-    #
-    # # on choisit de mettre les colonnes de l'solution_df
-    # # dans le même ordre que celles de l'input_df
-    # # pour faciliter la comparaison après
-    # try:
-    #     input_df = input_df[solution_df.columns]
-    # # bug si pas les mêmes colonnes
-    # except KeyError:
-    #     st.write("some columns are missing")
+    # theme chosen
+    try:
+        # give a hint on lines difference
+        nb_lines_difference = solution_df.shape[0] - input_df.shape[0]
+        if nb_lines_difference != 0:
+            if nb_lines_difference > 0:
+                st.write(f"The solution has {nb_lines_difference} lines more.")
+            else:
+                st.write(f"The solution has {-nb_lines_difference} lines less.")
 
-    # Après un tour dans la doc pandas
-    # nécessite que les noms de colonnes soient identiques
-    # affiche le dataframe de comparaison des dataframes input et answer
-    # probleme : si tailles des df différentes :
-    # ValueError: Can only compare identically-labeled (both index and columns) DataFrame objects
-    # try:
-    #     st.dataframe(input_df.compare(solution_df))
-    # # si ça bug sur une value error, on affiche juste son message
-    # except ValueError as e:
-    #     st.write(f"{e}")
+        # sort solution_df columns like input_df's to ease comparison
+        try:
+            input_df = input_df[solution_df.columns]
+            # compare
+            try:
+                comparison_result = input_df.compare(solution_df)
+                # No difference found
+                if comparison_result.empty:
+                    st.write("You found the right solution.")
+                else:
+                    st.write("Not yet, here are the differences :")
+                    st.dataframe(comparison_result)
+            # value error
+            except ValueError as e:
+                st.write(f"{e}")
+        # different columns
+        except KeyError:
+            st.write("Some columns are missing or different.")
+    # no theme : no solution
+    except NameError as e:
+        st.write("No theme selected yet, no solution loaded.")
+        # st.write(f"{e}")
+
+# no input_query
+except AttributeError as e:
+    st.write("No input sent yet.")
+    st.write(f"{e}")
+# input_query : syntax error (duckdb)
+except duckdb.duckdb.ParserException as e:
+    st.write("incorrect input sent, not an SQL command")
+    st.write(f"{e}")
+# input_query : missing table (duckdb)
+except duckdb.duckdb.CatalogException as e:
+    st.write(f"{e}")
 
 
 # -----------------------------------------------------------
-# tabs présentant le contexte de l'exercice et la solution
+# tabs with exercise specifics and solution
 # -----------------------------------------------------------
 tab2, tab3 = st.tabs(["Tables", "Solution"])
 
 with tab2:
-    # on affiche les tables de l'exercice sélectionné
-    # on utilise la méthode loc des df pour sortir la première ligne dans la colonne tables
-    # rappel : tables contient la liste des tables associées à un exercice
+    # show exercise tables
+    # use df.loc[0,"tables"] : get 1st line in "tables" column
+    # tables : exercise's tables' names
     if theme_selected:
-        # ici on a parfois des listes stockées sous forme de string -> ast.litteral_eval()
+        # if list stored as string -> ast.literal_eval()
         exercise_tables = ast.literal_eval(exercise.loc[0, "tables"])
         for table in exercise_tables:
             st.write(f"table: {table}")
@@ -112,11 +137,5 @@ with tab2:
 
 with tab3:
     if theme_selected:
-        exercise_name = exercise.loc[0, "exercise_name"]
-        # on ouvre le fichier qui contient la solution
-        with open(
-            f"answers/{exercise_name}.sql", "r", encoding="utf-8"
-        ) as f:  # r pour read only
-            answer = f.read()
-        st.write(answer)
-        # formatting pas top pour l'instant
+        st.write(answer_query)
+        # bad formatting for now
