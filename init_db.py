@@ -17,11 +17,13 @@ data = {
     "last_reviewed": ["1970-01-01", "1970-01-01", "1970-01-01"],
 }
 memory_state_df = pd.DataFrame(data)
+
+con.execute("DROP TABLE IF EXISTS memory_state")
 con.execute("CREATE TABLE IF NOT EXISTS memory_state AS SELECT * FROM memory_state_df")
 
 
 # -------------------------------------------------------------
-# CROSS JOIN EXERCISES
+# CROSS JOIN EXERCISE
 # -------------------------------------------------------------
 # ajout de vrai data pour les questions
 CSV = """
@@ -43,12 +45,3 @@ muffin,3
 food_items = pd.read_csv(io.StringIO(CSV2))
 # Table creation in the real db
 con.execute("CREATE TABLE IF NOT EXISTS food_items AS SELECT * FROM food_items")
-
-
-# à mettre dans un fichier solution.sql
-ANSWER = """
-SELECT * FROM beverages
-CROSS JOIN food_items
-"""
-# answer_df = duckdb.sql(ANSWER).df()
-# con.execute("CREATE TABLE IF NOT EXISTS beverages_and_food_solution AS SELECT * FROM answer_df")
