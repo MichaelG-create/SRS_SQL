@@ -139,5 +139,5 @@ with tab2:
 
 with tab3:
     if theme_selected:
-        st.write(answer_query)
-        # bad formatting for now
+        # st.text keeps text layout
+        st.text(answer_query)
