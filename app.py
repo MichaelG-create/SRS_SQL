@@ -108,7 +108,6 @@ try:
 # no input_query
 except AttributeError as e:
     st.write("No input sent yet.")
-    st.write(f"{e}")
 # input_query : syntax error (duckdb)
 except duckdb.duckdb.ParserException as e:
     st.write("incorrect input sent, not an SQL command")
@@ -137,5 +136,5 @@ with tab2:
 
 with tab3:
     if theme_selected:
-        st.write(answer_query)
-        # bad formatting for now
+        # st.text permet de conserver la mise en forme
+        st.text(answer_query)
