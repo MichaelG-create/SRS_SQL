@@ -51,8 +51,10 @@ with st.sidebar:
         # load solution df using answer_query
         solution_df = con.execute(answer_query).df()
 
+    # no theme selected
     except KeyError as e:
-        st.write("No theme selected for now.")
+        st.write("")
+        # st.write("No theme selected for now.")
         # st.write(f"{e}")
 
 # -----------------------------------------------------------
@@ -107,8 +109,8 @@ try:
 
 # no input_query
 except AttributeError as e:
-    st.write("No input sent yet.")
-    st.write(f"{e}")
+    st.write("")
+    # st.write("No input sent yet.")
 # input_query : syntax error (duckdb)
 except duckdb.duckdb.ParserException as e:
     st.write("incorrect input sent, not an SQL command")
@@ -126,7 +128,7 @@ tab2, tab3 = st.tabs(["Tables", "Solution"])
 with tab2:
     # show exercise tables
     # use df.loc[0,"tables"] : get 1st line in "tables" column
-    # tables : exercise's tables' names
+    # tables : names of the tables of an exercise
     if theme_selected:
         # if list stored as string -> ast.literal_eval()
         exercise_tables = ast.literal_eval(exercise.loc[0, "tables"])
