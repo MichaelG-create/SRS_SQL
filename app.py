@@ -136,5 +136,5 @@ with tab2:
 
 with tab3:
     if theme_selected:
-        # st.text permet de conserver la mise en forme
+        # st.text keeps text layout
         st.text(answer_query)
