@@ -1,11 +1,32 @@
 # pylint: disable=missing-module-docstring
 # https://srssql.streamlit.app/
+# https://srssql-develop.streamlit.app/
+
+import os
+import logging  # logger de python
+from ast import Index
+
+from streamlit.logger import get_logger # logger de streamlit
 
 import duckdb
 import streamlit as st
 
+# checking streamlit cloud configuration
+app_logger = get_logger(__name__)
+app_logger.setLevel(logging.INFO)  # here can set DEBUG, ERROR, WARNING
+
+if "data" not in os.listdir():
+    app_logger.info("duckdb database set up")
+    app_logger.info("List working directory content: %s", os.listdir())
+    app_logger.info("Create 'data' folder, if it doesn't exist")
+    os.makedirs("data", exist_ok=True)  # exist_ok useful if "if" not used
+
+if "sql_exercises.duckdb" not in os.listdir("data"):
+    app_logger.info("Create Database and tables")
+    subprocess.run([f"{sys.executable}", "SRS_SQL/init_db.py"], check=False)
+
 # connecting db
-con = duckdb.connect(database="data/exercises_sql_tables.duckdb", read_only=False)
+con = duckdb.connect(database="data/sql_exercises.duckdb", read_only=False)
 
 # ------------------------------------------------------------------------
 # DISPLAY PART
@@ -33,14 +54,14 @@ with (st.sidebar):
         st.write("You selected:", theme_selected)
 
         # get available exercises in this theme
-        # sort the exercises by last_reviewed, reset_index cause we use .loc[0]
+        # sort the exercises by last_reviewed
         exercise = con.execute(
             f"SELECT DISTINCT * FROM memory_state WHERE theme = '{theme_selected}'"
-        ).df().sort_values("last_reviewed", order='asc').reset_index()
+        ).df().sort_values("last_reviewed", ascending=True)
         st.write(exercise)
 
         # load answer of the 1st exercise (for instance)
-        exercise_name = exercise.loc[0, "exercise_name"]
+        exercise_name = exercise.iloc[0]["exercise_name"]
 
         # get answer_query stored in the exercise solution file
         with open(
@@ -52,10 +73,8 @@ with (st.sidebar):
         solution_df = con.execute(answer_query).df()
 
     # no theme selected
-    except KeyError as e:
+    except IndexError as e:     #KeyError if use .loc instead of .iloc
         st.write("")
-        # st.write("No theme selected for now.")
-        # st.write(f"{e}")
 
 # -----------------------------------------------------------
 # Input zone
@@ -132,14 +151,20 @@ with tab2:
     # theme chosen
     # if theme_selected:
     try:
-        exercise_tables = exercise.loc[0, "tables"]
+        exercise_tables = exercise.iloc[0]["tables"]
         for table in exercise_tables:
+            # load tables
             st.write(f"table: {table}")
             df_table = con.execute(f'SELECT * FROM "{table}"').df()
             st.dataframe(df_table)
+
+        #load solution_df
+        st.write("expected:")
+        st.dataframe(solution_df)
     # no theme : no solution
-    except NameError as e:
-        st.write("No theme selected yet, no solution loaded.")
+    except IndexError as e:     #KeyError if use .loc instead of .iloc
+        st.write("")
+        # st.write("No exercise selected yet, no tables loaded.")
 
 with tab3:
     if theme_selected:
