@@ -60,31 +60,33 @@ with st.sidebar:
         placeholder="Select what you want to review",
     )
     # theme selected
-    try:
+    # get available exercises in this theme
+    # sort the exercises by last_reviewed
+    if theme_selected:
         st.write("You selected:", theme_selected)
+        theme_query = f"SELECT * FROM memory_state WHERE theme = '{theme_selected}'"
+    else:
+        theme_query = "SELECT * FROM memory_state"
+    exercise = (
+        con.execute(theme_query).df().sort_values("last_reviewed", ascending=True)
+    )
+    st.write(exercise)
 
-        # get available exercises in this theme
-        # sort the exercises by last_reviewed
-        exercise = con.execute(
-            f"SELECT DISTINCT * FROM memory_state WHERE theme = '{theme_selected}'"
-        ).df().sort_values("last_reviewed", ascending=True)
-        st.write(exercise)
+    # load answer of the 1st exercise (for instance)
+    exercise_name = exercise.iloc[0]["exercise_name"]
 
-        # load answer of the 1st exercise (for instance)
-        exercise_name = exercise.iloc[0]["exercise_name"]
+    # get answer_query stored in the exercise solution file
+    with open(
+        f"answers/{exercise_name}.sql", "r", encoding="utf-8"
+    ) as f:  # r for read only
+        answer_query = f.read()
 
-        # get answer_query stored in the exercise solution file
-        with open(
-            f"answers/{exercise_name}.sql", "r", encoding="utf-8"
-        ) as f:  # r for read only
-            answer_query = f.read()
+    # load solution df using answer_query
+    solution_df = con.execute(answer_query).df()
 
-        # load solution df using answer_query
-        solution_df = con.execute(answer_query).df()
-
-    # no theme selected
-    except IndexError as e:     #KeyError if use .loc instead of .iloc
-        st.write("")
+    # # no theme selected : print nothing
+    # except IndexError as e:  # KeyError if use .loc instead of .iloc
+    #     st.write("")
 
 # -----------------------------------------------------------
 # Input zone
@@ -147,7 +149,6 @@ except duckdb.duckdb.ParserException as e:
 # input_query : missing table (duckdb)
 except duckdb.duckdb.CatalogException as e:
     st.write(f"{e}")
-
 
 # -----------------------------------------------------------
 # tabs with exercise specifics and solution
