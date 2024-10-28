@@ -4,14 +4,16 @@
 
 import os
 import logging  # logger de python
-from ast import Index
 
-from streamlit.logger import get_logger # logger de streamlit
+from streamlit.logger import get_logger  # logger de streamlit
 
 import duckdb
 import streamlit as st
 
+# ------------------------------------------------------------------------
+# Streamlit specific part
 # checking streamlit cloud configuration
+# ------------------------------------------------------------------------
 app_logger = get_logger(__name__)
 app_logger.setLevel(logging.INFO)  # here can set DEBUG, ERROR, WARNING
 
@@ -25,6 +27,9 @@ if "sql_exercises.duckdb" not in os.listdir("data"):
     app_logger.info("Create Database and tables")
     subprocess.run([f"{sys.executable}", "SRS_SQL/init_db.py"], check=False)
 
+# ------------------------------------------------------------------------
+# START OF MAIN PART
+# ------------------------------------------------------------------------
 # connecting db
 con = duckdb.connect(database="data/sql_exercises.duckdb", read_only=False)
 
@@ -42,10 +47,15 @@ Spaced Repetition System SQL practice
 # -----------------------------------------------------------
 # Sidebar to choose the theme to revise
 # -----------------------------------------------------------
-with (st.sidebar):
+with st.sidebar:
+    # get existing themes from the db -> list
+    # (possible to use unique() here instead of squeeze.to_list)
+    theme_list = (
+        con.execute("SELECT DISTINCT theme FROM memory_state").df().squeeze().to_list()
+    )  # df->Series->list
     theme_selected = st.selectbox(
         "What would you like to review?",
-        ["cross_joins", "GroupBy", "simple_window"],
+        theme_list,
         index=None,  # Default choice is None
         placeholder="Select what you want to review",
     )
@@ -158,11 +168,11 @@ with tab2:
             df_table = con.execute(f'SELECT * FROM "{table}"').df()
             st.dataframe(df_table)
 
-        #load solution_df
+        # load solution_df
         st.write("expected:")
         st.dataframe(solution_df)
     # no theme : no solution
-    except IndexError as e:     #KeyError if use .loc instead of .iloc
+    except IndexError as e:  # KeyError if use .loc instead of .iloc
         st.write("")
         # st.write("No exercise selected yet, no tables loaded.")
 

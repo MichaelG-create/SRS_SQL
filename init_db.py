@@ -12,8 +12,18 @@ con = duckdb.connect(database="data/sql_exercises.duckdb", read_only=False)
 # -------------------------------------------------------------
 data = {
     "theme": ["cross_joins", "cross_joins", "window_functions", "GroupBy"],
-    "exercise_name": ["beverages_and_food", "trademarks_and_sizes", "simple_window", "GroupBy"],
-    "tables": [["beverages", "food_items"], ["trademarks", "sizes"], ["simple_window"], ["GroupBy"]],
+    "exercise_name": [
+        "beverages_and_food",
+        "trademarks_and_sizes",
+        "simple_window",
+        "GroupBy",
+    ],
+    "tables": [
+        ["beverages", "food_items"],
+        ["trademarks", "sizes"],
+        ["simple_window"],
+        ["GroupBy"],
+    ],
     "last_reviewed": ["1970-01-02", "1970-01-01", "1970-01-01", "1970-01-01"],
 }
 memory_state_df = pd.DataFrame(data)
@@ -49,24 +59,24 @@ con.execute("CREATE TABLE IF NOT EXISTS food_items AS SELECT * FROM food_items")
 # ANOTHER CROSS JOIN EXERCISE (
 # -------------------------------------------------------------
 # ajout de vrai data pour les questions
-SIZES = '''
+SIZES = """
 size
 XS
 M
 L
 XL
-'''
+"""
 SIZES = pd.read_csv(io.StringIO(SIZES))
 con.execute("DROP TABLE IF EXISTS sizes")
 con.execute("CREATE TABLE IF NOT EXISTS sizes AS SELECT * FROM SIZES")
 
-TRADEMARKS = '''
+TRADEMARKS = """
 trademark
 Nike
 Asphalte
 Abercrombie
 Lewis
-'''
+"""
 TRADEMARKS = pd.read_csv(io.StringIO(TRADEMARKS))
 con.execute("DROP TABLE IF EXISTS trademarks")
 con.execute("CREATE TABLE IF NOT EXISTS trademarks AS SELECT * FROM TRADEMARKS")
