@@ -5,7 +5,7 @@ import io
 import duckdb
 import pandas as pd
 
-con = duckdb.connect(database="data/exercises_sql_tables.duckdb", read_only=False)
+con = duckdb.connect(database="data/sql_exercises.duckdb", read_only=False)
 
 # -------------------------------------------------------------
 # EXERCISES LIST
@@ -14,7 +14,7 @@ data = {
     "theme": ["cross_joins", "cross_joins", "window_functions", "GroupBy"],
     "exercise_name": ["beverages_and_food", "trademarks_and_sizes", "simple_window", "GroupBy"],
     "tables": [["beverages", "food_items"], ["trademarks", "sizes"], ["simple_window"], ["GroupBy"]],
-    "last_reviewed": ["1970-01-01", "1980-01-01", "1970-01-01", "1970-01-01"],
+    "last_reviewed": ["1970-01-02", "1970-01-01", "1970-01-01", "1970-01-01"],
 }
 memory_state_df = pd.DataFrame(data)
 con.execute("DROP TABLE IF EXISTS memory_state")
@@ -70,3 +70,5 @@ Lewis
 TRADEMARKS = pd.read_csv(io.StringIO(TRADEMARKS))
 con.execute("DROP TABLE IF EXISTS trademarks")
 con.execute("CREATE TABLE IF NOT EXISTS trademarks AS SELECT * FROM TRADEMARKS")
+
+con.close()
