@@ -1,6 +1,5 @@
 # pylint: disable=missing-module-docstring
 # https://srssql.streamlit.app/
-import ast
 
 import duckdb
 import streamlit as st
@@ -22,7 +21,7 @@ Spaced Repetition System SQL practice
 # -----------------------------------------------------------
 # Sidebar to choose the theme to revise
 # -----------------------------------------------------------
-with st.sidebar:
+with (st.sidebar):
     theme_selected = st.selectbox(
         "What would you like to review?",
         ["cross_joins", "GroupBy", "simple_window"],
@@ -34,9 +33,10 @@ with st.sidebar:
         st.write("You selected:", theme_selected)
 
         # get available exercises in this theme
+        # sort the exercises by last_reviewed, reset_index cause we use .loc[0]
         exercise = con.execute(
             f"SELECT DISTINCT * FROM memory_state WHERE theme = '{theme_selected}'"
-        ).df()
+        ).df().sort_values("last_reviewed", order='asc').reset_index()
         st.write(exercise)
 
         # load answer of the 1st exercise (for instance)
@@ -129,13 +129,17 @@ with tab2:
     # show exercise tables
     # use df.loc[0,"tables"] : get 1st line in "tables" column
     # tables : names of the tables of an exercise
-    if theme_selected:
-        # if list stored as string -> ast.literal_eval()
-        exercise_tables = ast.literal_eval(exercise.loc[0, "tables"])
+    # theme chosen
+    # if theme_selected:
+    try:
+        exercise_tables = exercise.loc[0, "tables"]
         for table in exercise_tables:
             st.write(f"table: {table}")
             df_table = con.execute(f'SELECT * FROM "{table}"').df()
             st.dataframe(df_table)
+    # no theme : no solution
+    except NameError as e:
+        st.write("No theme selected yet, no solution loaded.")
 
 with tab3:
     if theme_selected:
