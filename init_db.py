@@ -10,25 +10,27 @@ con = duckdb.connect(database="data/sql_exercises.duckdb", read_only=False)
 # -------------------------------------------------------------
 # EXERCISES LIST
 # -------------------------------------------------------------
-data = {
-    "theme": ["cross_joins", "cross_joins", "window_functions", "GroupBy"],
-    "exercise_name": [
+EXERCISES = {
+    "theme": [
+        "cross_joins",
+        "cross_joins",
+    ],
+    "name": [
         "beverages_and_food",
         "trademarks_and_sizes",
-        "simple_window",
-        "GroupBy",
     ],
-    "tables": [
+    "tables_names": [
         ["beverages", "food_items"],
         ["trademarks", "sizes"],
-        ["simple_window"],
-        ["GroupBy"],
     ],
-    "last_reviewed": ["1970-01-02", "1970-01-01", "1970-01-01", "1970-01-01"],
+    "last_reviewed": [
+        "1970-01-02",
+        "1970-01-01",
+    ],
 }
-memory_state_df = pd.DataFrame(data)
-con.execute("DROP TABLE IF EXISTS memory_state")
-con.execute("CREATE TABLE IF NOT EXISTS memory_state AS SELECT * FROM memory_state_df")
+exercises_df = pd.DataFrame(EXERCISES)
+con.execute("DROP TABLE IF EXISTS exercises")
+con.execute("CREATE TABLE IF NOT EXISTS exercises AS SELECT * FROM exercises_df")
 
 # -------------------------------------------------------------
 # CROSS JOIN EXERCISE
