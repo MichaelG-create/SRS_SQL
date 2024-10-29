@@ -10,15 +10,27 @@ con = duckdb.connect(database="data/sql_exercises.duckdb", read_only=False)
 # -------------------------------------------------------------
 # EXERCISES LIST
 # -------------------------------------------------------------
-data = {
-    "theme": ["cross_joins", "cross_joins", "window_functions", "GroupBy"],
-    "exercise_name": ["beverages_and_food", "trademarks_and_sizes", "simple_window", "GroupBy"],
-    "tables": [["beverages", "food_items"], ["trademarks", "sizes"], ["simple_window"], ["GroupBy"]],
-    "last_reviewed": ["1970-01-02", "1970-01-01", "1970-01-01", "1970-01-01"],
+EXERCISES = {
+    "theme": [
+        "cross_joins",
+        "cross_joins",
+    ],
+    "name": [
+        "beverages_and_food",
+        "trademarks_and_sizes",
+    ],
+    "tables_names": [
+        ["beverages", "food_items"],
+        ["trademarks", "sizes"],
+    ],
+    "last_reviewed": [
+        "1970-01-02",
+        "1970-01-01",
+    ],
 }
-memory_state_df = pd.DataFrame(data)
-con.execute("DROP TABLE IF EXISTS memory_state")
-con.execute("CREATE TABLE IF NOT EXISTS memory_state AS SELECT * FROM memory_state_df")
+exercises_df = pd.DataFrame(EXERCISES)
+con.execute("DROP TABLE IF EXISTS exercises")
+con.execute("CREATE TABLE IF NOT EXISTS exercises AS SELECT * FROM exercises_df")
 
 # -------------------------------------------------------------
 # CROSS JOIN EXERCISE
@@ -49,24 +61,24 @@ con.execute("CREATE TABLE IF NOT EXISTS food_items AS SELECT * FROM food_items")
 # ANOTHER CROSS JOIN EXERCISE (
 # -------------------------------------------------------------
 # ajout de vrai data pour les questions
-SIZES = '''
+SIZES = """
 size
 XS
 M
 L
 XL
-'''
+"""
 SIZES = pd.read_csv(io.StringIO(SIZES))
 con.execute("DROP TABLE IF EXISTS sizes")
 con.execute("CREATE TABLE IF NOT EXISTS sizes AS SELECT * FROM SIZES")
 
-TRADEMARKS = '''
+TRADEMARKS = """
 trademark
 Nike
 Asphalte
 Abercrombie
 Lewis
-'''
+"""
 TRADEMARKS = pd.read_csv(io.StringIO(TRADEMARKS))
 con.execute("DROP TABLE IF EXISTS trademarks")
 con.execute("CREATE TABLE IF NOT EXISTS trademarks AS SELECT * FROM TRADEMARKS")
