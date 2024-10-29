@@ -26,9 +26,7 @@ if "data" not in os.listdir():
 
 if "sql_exercises.duckdb" not in os.listdir("data"):
     app_logger.info("Create Database and tables_names")
-    subprocess.run(
-        [f"{sys.executable}", "SRS_SQL/init_db.py"], check=False
-    )  # pylint: disable=E0602
+    subprocess.run([f"{sys.executable}", "SRS_SQL/init_db.py"], check=False)  # pylint: disable=E0602
 
 
 # ------------------------------------------------------------------------
