@@ -4,11 +4,13 @@
 
 import logging  # logger de python
 import os
+from datetime import date, timedelta
 
 import duckdb
 import pandas as pd
 import streamlit as st
 from streamlit.logger import get_logger  # logger de streamlit
+
 
 # ------------------------------------------------------------------------
 # Streamlit specific part
@@ -23,10 +25,12 @@ if "data" not in os.listdir():
     app_logger.info("Create 'data' folder, if it doesn't exist")
     os.makedirs("data", exist_ok=True)  # exist_ok useful if "if" not used
 
-
 if "sql_exercises.duckdb" not in os.listdir("data"):
     app_logger.info("Create Database and tables_names")
-    subprocess.run([f"{sys.executable}", "SRS_SQL/init_db.py"], check=False)  # pylint: disable=E0602
+    subprocess.run(  # pylint: disable=E0602
+        [f"{sys.executable}", "SRS_SQL/init_db.py"],  # pylint: disable=E0602
+        check=False,
+    )
 
 
 # ------------------------------------------------------------------------
@@ -114,7 +118,6 @@ class Exercise:
         """
         Display the tables_names of the exercise chosen
         - tables_names
-        - solution table
         :return:
         """
         try:
@@ -124,6 +127,17 @@ class Exercise:
                 df_table = con.execute(f'SELECT * FROM "{table}"').df()
                 st.dataframe(df_table)
 
+        except IndexError:  # no theme chosen
+            st.write("")
+            # st.write("No exercise selected yet, no tables_names loaded.")
+
+    def show_expected(self):
+        """
+        Display the tables_names of the exercise chosen
+        - solution table
+        :return:
+        """
+        try:
             # load answer_df
             st.write("expected:")
             st.dataframe(self.solution_df)
@@ -162,6 +176,7 @@ class Exercise:
                         # No difference found
                         if comparison_result.empty:
                             st.write("You found the right solution.")
+                            st.balloons()
                         else:
                             st.write("Not yet, here are the differences :")
                             st.dataframe(comparison_result)
@@ -196,6 +211,29 @@ class Exercise:
             st.write("")
             # st.write("No exercise selected yet, no tables_names loaded.")
 
+    def srs_buttons(self):
+        """
+        Displays the 3 buttons for the Spaced Repetition System
+        - one to delay to next revision to day +2
+        - one to delay to next revision to day +7
+        - one to delay to next revision to day +21
+        - one to reset last_reviewed to good old time
+        Updates the exercises database "last_reviewed" date so it's reorganised
+        :return:
+        """
+        for n_days in [2, 7, 21]:
+            if st.button(f"Review in {n_days} days"):
+                next_review = date.today() + timedelta(days=n_days)
+                con.execute(
+                    f"UPDATE exercises SET last_reviewed = '{next_review}' "
+                    + f"WHERE name = '{self.name}'"
+                )
+                st.rerun()
+        # testing button, will be removed
+        if st.button("Reset"):
+            con.execute("UPDATE exercises SET last_reviewed = '1970-01-01'")
+            st.rerun()
+
 
 # connecting db
 con = duckdb.connect(database="data/sql_exercises.duckdb", read_only=False)
@@ -215,8 +253,24 @@ Spaced Repetition System SQL practice
 # Sidebar to choose the theme to revise
 # -----------------------------------------------------------
 exercise = Exercise()
+
 with st.sidebar:
     exercise.choose_theme()
+
+    # -----------------------------------------------------------
+    # tabs with exercise specifics and solution
+    # -----------------------------------------------------------
+    tab1, tab2 = st.tabs(["Tables", "Solution"])
+    with tab1:
+        col1, col2 = st.columns(2)
+
+        with col1:
+            exercise.show_tables()
+        with col2:
+            exercise.show_expected()
+
+    with tab2:
+        exercise.show_solution()
 
 # -----------------------------------------------------------
 # Input zone
@@ -227,12 +281,6 @@ input_query = st.text_area(label="your SQL code here")  # , key="user_input")
 exercise.check_user_solution(input_query)
 
 # -----------------------------------------------------------
-# tabs with exercise specifics and solution
+# Spaced Repetition System
 # -----------------------------------------------------------
-tab2, tab3 = st.tabs(["Tables", "Solution"])
-
-with tab2:
-    exercise.show_tables()
-
-with tab3:
-    exercise.show_solution()
+exercise.srs_buttons()
