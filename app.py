@@ -5,6 +5,8 @@
 import logging  # logger de python
 import os
 from datetime import date, timedelta
+import subprocess
+import sys
 
 import duckdb
 import pandas as pd
