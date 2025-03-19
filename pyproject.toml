@@ -1,0 +1,27 @@
+[project]
+name = "srs-sql"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "micha-dv6",email = "michael.garcia.73@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pandas (>=2.2.3,<3.0.0)",
+    "streamlit (>=1.43.2,<2.0.0)",
+    "duckdb (>=1.2.1,<2.0.0)"
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = 20
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.11.0"
+pytest = "^8.3.5"
