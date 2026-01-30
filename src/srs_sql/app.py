@@ -74,6 +74,13 @@ with st.sidebar:
             key="theme_select",
         )
 
+# ------------------------------------------------------------------------
+# Exercise brief and input area (main area)
+# ------------------------------------------------------------------------
+if exercise.instruction:
+    st.subheader("Exercise brief")
+    st.write(exercise.instruction)
+
 # Main central area: Load + ALL exercise content
 exercise = Exercise(con)  # Or use session_state if needed for persistence
 exercise.load_from_theme(theme_selected, review_mode=review_mode)
@@ -86,25 +93,19 @@ if not exercise.name:
 # Tabs for tables / solution (main area)
 tab1, tab2 = st.tabs(["Tables", "Solution"])
 with tab1:
-    col1, col2 = st.columns(2)
-    with col1:
-        exercise.show_tables()
-    with col2:
-        exercise.show_expected()
+    # col1, col2 = st.columns(2)
+    # with col1:
+    exercise.show_tables()
+    # with col2:
+    exercise.show_expected()
 with tab2:
     exercise.show_solution()
-
-# ------------------------------------------------------------------------
-# Exercise brief and input area (main area)
-# ------------------------------------------------------------------------
-if exercise.instruction:
-    st.subheader("Exercise brief")
-    st.write(exercise.instruction)
 
 st.header("Enter your code:")
 input_query = st.text_area(label="Your SQL code here")
 
 exercise.check_user_solution(input_query)
+
 
 # ------------------------------------------------------------------------
 # SRS buttons (main area)
