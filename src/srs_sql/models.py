@@ -139,12 +139,12 @@ class Exercise:
             except ValueError as e:
                 st.write(f"{e}")
 
-        except duckdb.duckdb.ParserException as e:  # pylint: disable=I1101
+        except duckdb.ParserException as e:  # <- change here
             st.write("incorrect input sent, not an SQL command")
             st.write(f"{e}")
-        except duckdb.duckdb.CatalogException as e:  # pylint: disable=I1101
+        except duckdb.CatalogException as e:  # <- and here
             st.write(f"{e}")
-
+            
     def srs_buttons(self) -> None:
         """
         Spaced Repetition buttons: update last_reviewed.

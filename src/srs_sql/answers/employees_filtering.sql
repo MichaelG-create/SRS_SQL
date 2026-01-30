@@ -8,5 +8,5 @@ SELECT
     hire_date
 FROM employees
 WHERE department = 'Engineering'
-  AND hire_date > DATE '2020-01-01'
+  AND CAST(hire_date AS DATE) > DATE '2020-01-01'
 ORDER BY salary DESC;

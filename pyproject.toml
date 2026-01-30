@@ -19,6 +19,7 @@ dependencies = [
 dev = [
     "ruff>=0.11.0,<1.0.0",
     "pytest>=8.3.5,<9.0.0",
+    "pytest-cov>=7.0.0",
 ]
 
 [build-system]
@@ -32,3 +33,7 @@ package = true
 # By default, uv expects src/srs_sql/** for this project name. [web:103]
 [tool.uv.build-backend]
 module-root = "src/"
+
+
+[tool.pytest.ini_options]
+addopts = "--cov=srs_sql --cov-report=term-missing"
