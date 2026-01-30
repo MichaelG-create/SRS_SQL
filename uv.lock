@@ -589,7 +589,7 @@ dependencies = [
     { name = "streamlit" },
 ]
 
-[package.optional-dependencies]
+[package.dev-dependencies]
 dev = [
     { name = "pytest" },
     { name = "ruff" },
@@ -599,12 +599,15 @@ dev = [
 requires-dist = [
     { name = "duckdb", specifier = ">=1.4.4" },
     { name = "pandas", specifier = ">=2.3.3" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.5,<9.0.0" },
     { name = "pyyaml", specifier = ">=6.0.0,<7.0.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.11.0,<1.0.0" },
     { name = "streamlit", specifier = ">=1.53.1" },
 ]
-provides-extras = ["dev"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=8.3.5,<9.0.0" },
+    { name = "ruff", specifier = ">=0.11.0,<1.0.0" },
+]
 
 [[package]]
 name = "streamlit"
