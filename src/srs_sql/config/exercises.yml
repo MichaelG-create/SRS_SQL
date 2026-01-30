@@ -1,0 +1,79 @@
+exercises:
+  - name: employees_basic_select
+    theme: select
+    difficulty: 0
+    tables:
+      - employees
+    instruction: >
+      HR wants a simple list of all employees with their department and salary.
+
+  - name: employees_filtering
+    theme: filtering
+    difficulty: 1
+    tables:
+      - employees
+    instruction: >
+      Engineering wants a list of engineers hired after 2020, ordered by salary.
+
+  - name: beverages_and_food
+    theme: cross joins
+    difficulty: 2
+    tables:
+      - beverages
+      - food_items
+    instruction: >
+      You are designing a café pricing tool. List all combinations of beverages
+      and food items with their combined price.
+
+  - name: trademarks_and_sizes
+    theme: cross joins (2)
+    difficulty: 2
+    tables:
+      - trademarks
+      - sizes
+    instruction: >
+      You work for a clothing brand. Generate all combinations of trademarks
+      and sizes to prepare a catalog.
+
+  - name: orders_aggregations
+    theme: aggregations
+    difficulty: 2
+    tables:
+      - orders
+    instruction: >
+      The sales manager wants total order amount and number of orders per customer.
+
+  - name: customers_orders_join
+    theme: joins
+    difficulty: 2
+    tables:
+      - customers
+      - orders
+    instruction: >
+      Management wants shipped revenue per customer name, including customers
+      without orders.
+
+  - name: sales_window_functions
+    theme: window_functions
+    difficulty: 3
+    tables:
+      - sales
+    instruction: >
+      Analyze customer purchase behavior with running totals per customer over time.
+
+  - name: schema_ddl_changes
+    theme: ddl
+    difficulty: 3
+    tables:
+      - products
+      - orders
+    instruction: >
+      Create a view of active products and show them for the product team.
+
+  - name: etl_daily_sales
+    theme: procedural_style
+    difficulty: 4
+    tables:
+      - sales
+    instruction: >
+      Identify days with above-average daily sales using CTEs and classification.
