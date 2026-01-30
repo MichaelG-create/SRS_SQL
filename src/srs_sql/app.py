@@ -77,10 +77,6 @@ with st.sidebar:
 # ------------------------------------------------------------------------
 # Exercise brief and input area (main area)
 # ------------------------------------------------------------------------
-if exercise.instruction:
-    st.subheader("Exercise brief")
-    st.write(exercise.instruction)
-
 # Main central area: Load + ALL exercise content
 exercise = Exercise(con)  # Or use session_state if needed for persistence
 exercise.load_from_theme(theme_selected, review_mode=review_mode)
@@ -89,6 +85,10 @@ exercise.load_from_theme(theme_selected, review_mode=review_mode)
 if not exercise.name:
     st.write("No exercise available.")
     st.stop()
+
+if exercise.instruction:
+    st.subheader("Exercise brief")
+    st.write(exercise.instruction)
 
 # Tabs for tables / solution (main area)
 tab1, tab2 = st.tabs(["Tables", "Solution"])
