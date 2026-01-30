@@ -1,13 +1,13 @@
 [project]
 name = "srs-sql"
 version = "0.1.0"
-description = "Add your description here"
+description = "Spaced Repetition SQL app: learn SQL with a system repeating the answers with adjusted spacing to improve memorization."
 authors = [
     { name = "Michael Garcia", email = "michael.garcia.73@gmail.com" }
 ]
 license = { text = "MIT" }
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.12"
 dependencies = [
     "duckdb>=1.4.4",
     "pandas>=2.3.3",
@@ -28,12 +28,6 @@ build-backend = "uv_build"
 
 [tool.uv]
 package = true
-
-# Optional: explicit module root if you ever change layout.
-# By default, uv expects src/srs_sql/** for this project name. [web:103]
-[tool.uv.build-backend]
-module-root = "src/"
-
 
 [tool.pytest.ini_options]
 addopts = "--cov=srs_sql --cov-report=term-missing"
