@@ -75,7 +75,7 @@ with st.sidebar:
         )
 
 # Main central area: Load + ALL exercise content
-exercise = Exercise()  # Or use session_state if needed for persistence
+exercise = Exercise(con)  # Or use session_state if needed for persistence
 exercise.load_from_theme(theme_selected, review_mode=review_mode)
 
 # If nothing loaded (e.g. no exercises), stop
