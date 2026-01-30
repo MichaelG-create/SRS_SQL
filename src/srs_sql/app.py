@@ -42,7 +42,7 @@ Spaced Repetition System SQL practice
 )
 
 # ------------------------------------------------------------------------
-# Sidebar: theme selection + exercise load
+# Sidebar: ONLY selection controls (no tables, no solutions)
 # ------------------------------------------------------------------------
 with st.sidebar:
     # 1) Choose review mode FIRST
@@ -74,37 +74,39 @@ with st.sidebar:
             key="theme_select",
         )
 
-    # 2) Load exercise based on mode + theme (theme may be None)
-    exercise.load_from_theme(theme_selected, review_mode=review_mode)
+# Main central area: Load + ALL exercise content
+exercise = Exercise()  # Or use session_state if needed for persistence
+exercise.load_from_theme(theme_selected, review_mode=review_mode)
 
-    # If nothing loaded (e.g. no exercises), stop
-    if not exercise.name:
-        st.write("No exercise available.")
-        st.stop()
+# If nothing loaded (e.g. no exercises), stop
+if not exercise.name:
+    st.write("No exercise available.")
+    st.stop()
 
-    # Tabs for tables / solution
-    tab1, tab2 = st.tabs(["Tables", "Solution"])
-    with tab1:
-        col1, col2 = st.columns(2)
-        with col1:
-            exercise.show_tables()
-        with col2:
-            exercise.show_expected()
-    with tab2:
-        exercise.show_solution()
+# Tabs for tables / solution (main area)
+tab1, tab2 = st.tabs(["Tables", "Solution"])
+with tab1:
+    col1, col2 = st.columns(2)
+    with col1:
+        exercise.show_tables()
+    with col2:
+        exercise.show_expected()
+with tab2:
+    exercise.show_solution()
+
 # ------------------------------------------------------------------------
-# Exercise brief and input area
+# Exercise brief and input area (main area)
 # ------------------------------------------------------------------------
 if exercise.instruction:
     st.subheader("Exercise brief")
     st.write(exercise.instruction)
 
-st.header("enter your code:")
-input_query = st.text_area(label="your SQL code here")
+st.header("Enter your code:")
+input_query = st.text_area(label="Your SQL code here")
 
 exercise.check_user_solution(input_query)
 
 # ------------------------------------------------------------------------
-# SRS buttons
+# SRS buttons (main area)
 # ------------------------------------------------------------------------
 exercise.srs_buttons()
